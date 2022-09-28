@@ -1,9 +1,5 @@
-'''
-Each menu type will extend MenuClient
-'''
-
-
 class MenuClient:
+    """An abstract class for menu clients"""
 
     def get_menu_page(self, page):
         """
