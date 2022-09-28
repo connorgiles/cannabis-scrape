@@ -4,19 +4,14 @@ import urllib.parse
 from client import MenuClient
 
 
-def get_token(domain):
-    url_encoded_domain = urllib.parse.quote_plus(domain)
-    request_url = 'https://app.buddi.io/ropis/auth/get-token?domain=' + url_encoded_domain
-    return requests.get(request_url).json().get('token')
-
-
 class BuddiClient(MenuClient):
     def __init__(self, domain):
         """Requires the domain name where the menu is hosted"""
         self.domain = domain
-        # Buddi has a token where the subject is the domain name 🤔
-        self.token = get_token(domain)
         self.session = requests.Session()
+        # Buddi has a token where the subject is the domain name 🤔
+        self.token = self.get_token(domain)
+
         self.session.headers.update(
             {
                 # make it look like we're the client to be authorized
@@ -34,6 +29,11 @@ class BuddiClient(MenuClient):
                 'user-agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/106.0.0.0 Safari/537.36',
                 'utc-mins-offset': '-240',
             })
+
+    def get_token(self, domain):
+        url_encoded_domain = urllib.parse.quote_plus(domain)
+        request_url = 'https://app.buddi.io/ropis/auth/get-token?domain=' + url_encoded_domain
+        return self.session.get(request_url).json().get('token')
 
     def get_menu_page(self, page):
         result = self.session.get(
