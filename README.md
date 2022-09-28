@@ -8,11 +8,14 @@ git clone git@github.com:connorgiles/cannabis-scrape.git
 cd cannabis-scrape
 ```
 
+> ### Checkout [./example.py](./example.py)
+
 ### Run Example
 ```sh
 python example.py
 python3 example.py
 ```
+
 
 ## Supported Providers
 - Dutchie
