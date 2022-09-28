@@ -4,6 +4,7 @@ from client import MenuClient
 
 
 def get_dispensaries_for_slug(slug):
+    """Gets the dispensaries for a slug from Dutchie's API"""
     return requests.get('https://dutchie.com/graphql', params={
         'operationName': 'ConsumerDispensaries',
         'variables': '{"dispensaryFilter":{"cNameOrID":"' + slug + '"}}',
@@ -12,22 +13,26 @@ def get_dispensaries_for_slug(slug):
 
 
 def get_dispensary_id_for_slug(slug):
+    """Gets the dispensary id for a slug"""
     return get_dispensaries_for_slug(slug)[0].get('id')
 
 
 def slug_from_url(url):
+    """Extracts the slug from a dutchie url"""
     return url.split('embedded-menu/')[1].split('/')[0]
 
 
 # Read GraphQL query template
 # learn more: https://graphql.org/
 def read_gql_query(name):
+    """Reads a GraphQL query from a local file"""
     with open('./gql/dutchie/' + name+'.gql') as f:
         return f.read()
 
 
 class DutchieClient(MenuClient):
     def __init__(self, slug=None, url=None, id=None):
+        """Accepts a slug, url, or dispensary id"""
         if id is not None:
             self.dispensary_id = id
         elif slug is not None:

@@ -12,6 +12,7 @@ def get_token(domain):
 
 class BuddiClient(MenuClient):
     def __init__(self, domain):
+        """Requires the domain name where the menu is hosted"""
         self.domain = domain
         # Buddi has a token where the subject is the domain name 🤔
         self.token = get_token(domain)
