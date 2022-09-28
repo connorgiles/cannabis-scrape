@@ -41,7 +41,7 @@ class DutchieClient(MenuClient):
 
         self.session = requests.Session()
 
-    def get_menu_page(self, page=0, per_page=100):
+    def get_menu_page(self, page):
         # Dutchie chose to use GraphQL for their API
         # Which is not great for public API consumption
         # But it works and allows us to reference nested structures
@@ -64,7 +64,7 @@ class DutchieClient(MenuClient):
                     "removeProductsBelowOptionThresholds": True
                 },
                 "page": page,
-                "perPage": per_page
+                "perPage": 100
             },
             "query": read_gql_query('get_filtered_products')
         }).json()
@@ -74,9 +74,3 @@ class DutchieClient(MenuClient):
             'filteredProducts').get('queryInfo').get('totalPages')
 
         return data, total_pages
-
-    def get_menu(self):
-        data, total_pages = self.get_menu_page(0)
-        for page in range(1, total_pages):
-            data.extend(self.get_menu_page(page)[0])
-        return data

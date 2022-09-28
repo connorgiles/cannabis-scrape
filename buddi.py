@@ -34,18 +34,14 @@ class BuddiClient(MenuClient):
                 'utc-mins-offset': '-240',
             })
 
-    def refresh_token(self):
-        self.token = get_token(self.domain)
-        self.session.headers.update({'authorization': 'Bearer ' + self.token})
-
     def get_menu_page(self, page):
         result = self.session.get(
-            'https://app.buddi.io/ropis/menu?page=' + str(page)).json()
+            # buddi starts their page at 1 - let's be consistent with 0
+            'https://app.buddi.io/ropis/menu?page=' + str(page + 1)).json()
 
-        return result.get('data'), result.get('last_page')
+        # the last page is the total number of pages given
+        # buddi starts their page at 1 - no need to adjust
+        # for our desired interface of (data, page_count)
+        total_pages = result.get('last_page')
 
-    def get_menu(self,):
-        data, last_page = self.get_menu_page(1)
-        for page in range(2, last_page + 1):
-            data.extend(self.get_menu_page(page)[0])
-        return data
+        return result.get('data'), total_pages
