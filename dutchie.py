@@ -1,5 +1,4 @@
 import requests
-import json
 
 from client import MenuClient
 
@@ -81,15 +80,3 @@ class DutchieClient(MenuClient):
         for page in range(1, total_pages):
             data.extend(self.get_menu_page(page)[0])
         return data
-
-
-# can use any of the 3 options
-# will get ID from slug or url under the hood
-GRASSHOPPER_DISPENSARY_ID = "616ef8771f58c900a352b56b"
-GRASSHOPPER_DISPENSARY_SLUG = "grasshopper-cannabis"
-GRASSHOPPER_DISPENSARY_URL = "https://dutchie.com/embedded-menu/grasshopper-cannabis/products"
-
-GREY_BRUCE_URL = 'https://dutchie.com/embedded-menu/cannabis-grey-bruce-owen-sound/products'
-
-client = DutchieClient(url=GRASSHOPPER_DISPENSARY_URL)
-print(json.dumps(client.get_menu(), indent=2))

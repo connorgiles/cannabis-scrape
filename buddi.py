@@ -49,11 +49,3 @@ class BuddiClient(MenuClient):
         for page in range(2, last_page + 1):
             data.extend(self.get_menu_page(page)[0])
         return data
-
-
-BEST_CANNABIS_DOMAIN = 'https://bestcannabis.cc'
-THE_UNDERGROUND_DOMAIN = 'https://www.theunderground.store'
-
-client = BuddiClient(THE_UNDERGROUND_DOMAIN)
-
-print(client.get_menu())
