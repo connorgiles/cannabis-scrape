@@ -50,9 +50,13 @@ class DutchieClient(MenuClient):
         # Dutchie chose to use GraphQL for their API
         # Which is not great for public API consumption
         # But it works and allows us to reference nested structures
-        result = self.session.post("https://dutchie.com/graphql", None, {
+
+        request = {
             "operationName": "FilteredProducts",
+            "query": read_gql_query('get_filtered_products'),
             "variables": {
+                "page": page,
+                "perPage": 100,
                 "productsFilter": {
                     "dispensaryId": self.dispensary_id,
                     "pricingType": "rec",
@@ -68,14 +72,15 @@ class DutchieClient(MenuClient):
                     "isKioskMenu": False,
                     "removeProductsBelowOptionThresholds": True
                 },
-                "page": page,
-                "perPage": 100
             },
-            "query": read_gql_query('get_filtered_products')
-        }).json()
+        }
 
-        data = result.get('data').get('filteredProducts').get('products')
-        total_pages = result.get('data').get(
-            'filteredProducts').get('queryInfo').get('totalPages')
+        result = self.session.post(
+            "https://dutchie.com/graphql", None, request)
+
+        filtered_products = result.json().get('data').get('filteredProducts')
+
+        data = filtered_products.get('products')
+        total_pages = filtered_products.get('queryInfo').get('totalPages')
 
         return data, total_pages
