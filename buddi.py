@@ -1,7 +1,7 @@
 import requests
 import urllib.parse
 
-from menu import MenuClient
+from client import MenuClient
 
 
 def get_token(domain):

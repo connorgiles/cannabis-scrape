@@ -1,314 +1,7 @@
 import requests
 import json
 
-from menu import MenuClient
-
-# GraphQL query template
-# see: https://graphql.org/
-GQL_FILTERED_PRODUCTS = """
-query FilteredProducts($productsFilter: productsFilterInput!, $page: Int, $perPage: Int) {
-  filteredProducts(filter: $productsFilter, page: $page, perPage: $perPage) {
-    products {
-      ...consumerBaseProductFragment
-      brand {
-        id
-        _id
-        description
-        imageUrl
-        name
-        __typename
-      }
-      popularSortKey
-      cannabinoidsV2 {
-        value
-        unit
-        cannabinoid {
-          name
-          __typename
-        }
-        __typename
-      }
-      __typename
-    }
-    queryInfo {
-      totalCount
-      totalPages
-      __typename
-    }
-    __typename
-  }
-}
-fragment consumerBaseProductFragment on Products {
-  _id
-  id
-  AdditionalOptions
-  brandId
-  brandName
-  description
-  effects
-  CBD
-  CBDContent {
-    unit
-    range
-    __typename
-  }
-  comingSoon
-  createdAt
-  DispensaryID
-  enterpriseProductId
-  Image
-  images {
-    url
-    description
-    active
-    __typename
-  }
-  imgixSettings {
-    productCard {
-      border
-      mark
-      markscale
-      markpad
-      fit
-      __typename
-    }
-    productModal {
-      border
-      mark
-      markscale
-      markpad
-      fit
-      __typename
-    }
-    __typename
-  }
-  measurements {
-    netWeight {
-      unit
-      values
-      __typename
-    }
-    volume {
-      unit
-      values
-      __typename
-    }
-    __typename
-  }
-  medicalOnly
-  medicalPrices
-  medicalSpecialPrices
-  wholesalePrices
-  Name
-  nonArmsLength
-  Options
-  limitsPerCustomer {
-    key
-    value
-    __typename
-  }
-  manualInventory {
-    option
-    inventory
-    __typename
-  }
-  POSMetaData {
-    canonicalID
-    canonicalBrandName
-    children {
-      option
-      quantity
-      quantityAvailable
-      kioskQuantityAvailable
-      standardEquivalent {
-        value
-        unit
-        __typename
-      }
-      recEquivalent {
-        value
-        unit
-        __typename
-      }
-      __typename
-    }
-    __typename
-  }
-  Prices
-  pricingTierData {
-    generatedTiersId
-    tiersId
-    tiersName
-    tiers {
-      startWeight
-      endWeight
-      price
-      pricePerGram
-      weightUOM
-      __typename
-    }
-    __typename
-  }
-  recOnly
-  recPrices
-  recSpecialPrices
-  special
-  specialData {
-    bogoSpecials {
-      bogoConditionLogicOperator
-      bogoConditions {
-        _id
-        brandId
-        brandIds
-        brandName
-        brandNames
-        categoryIds
-        categoryName
-        categoryNames
-        enterpriseProductId
-        productGroup
-        productId
-        productIds
-        quantity
-        selectedCategoriesAndSubcategories
-        subcategoryIds
-        subcategoryNames
-        weight
-        weightOperator
-        __typename
-      }
-      bogoRewardLogicOperator
-      bogoRewards {
-        _id
-        brandId
-        brandIds
-        brandName
-        brandNames
-        categoryIds
-        categoryName
-        categoryNames
-        dollarDiscount
-        enterpriseProductId
-        productGroup
-        productId
-        productIds
-        percentDiscount
-        quantity
-        selectedCategoriesAndSubcategories
-        subcategoryIds
-        subcategoryNames
-        targetPrice
-        weight
-        __typename
-      }
-      discountToCart {
-        _id
-        enabled
-        discountType
-        value
-        __typename
-      }
-      discountBehavior
-      discountStacking
-      discountPrecedence
-      endStamp
-      excludedProducts {
-        conditions {
-          _id
-          key
-          Name
-          __typename
-        }
-        rewards {
-          _id
-          key
-          Name
-          __typename
-        }
-        __typename
-      }
-      isRecurring
-      itemsForAPrice {
-        _id
-        enabled
-        value
-        __typename
-      }
-      menuType
-      recurringEndDate
-      redemptionLimit
-      specialId
-      specialName
-      stackingBehavior
-      totalQuantity {
-        enabled
-        maxQuantity
-        quantity
-        quantityOperator
-        __typename
-      }
-      totalWeight {
-        enabled
-        weight
-        weightOperator
-        __typename
-      }
-      totalSpend {
-        enabled
-        maximumSpend
-        minimumSpend
-        spendOperator
-        __typename
-      }
-      qualifyingOptions
-      __typename
-    }
-    saleSpecials {
-      discount
-      discountStacking
-      menuType
-      percentDiscount
-      source
-      sourceId
-      specialId
-      specialName
-      specialRestrictions
-      stackingBehavior
-      stackingMode
-      targetPrice
-      __typename
-    }
-    __typename
-  }
-  Status
-  strainType
-  subcategory
-  THC
-  THCContent {
-    unit
-    range
-    __typename
-  }
-  type
-  vapeTaxApplicable
-  weight
-  featured {
-    current
-    startTime
-    endTime
-    __typename
-  }
-  isBelowThreshold
-  isBelowKioskThreshold
-  optionsBelowThreshold
-  optionsBelowKioskThreshold
-  cName
-  pastCNames
-  brandLogo
-  bottleDepositTaxCents
-  __typename
-}
-"""
+from client import MenuClient
 
 
 def get_dispensaries_for_slug(slug):
@@ -327,6 +20,13 @@ def slug_from_url(url):
     return url.split('embedded-menu/')[1].split('/')[0]
 
 
+# Read GraphQL query template
+# learn more: https://graphql.org/
+def read_gql_query(name):
+    with open('./gql/dutchie/' + name+'.gql') as f:
+        return f.read()
+
+
 class DutchieClient(MenuClient):
     def __init__(self, slug=None, url=None, id=None):
         if id is not None:
@@ -343,6 +43,9 @@ class DutchieClient(MenuClient):
         self.session = requests.Session()
 
     def get_menu_page(self, page=0, per_page=100):
+        # Dutchie chose to use GraphQL for their API
+        # Which is not great for public API consumption
+        # But it works and allows us to reference nested structures
         result = self.session.post("https://dutchie.com/graphql", None, {
             "operationName": "FilteredProducts",
             "variables": {
@@ -364,7 +67,7 @@ class DutchieClient(MenuClient):
                 "page": page,
                 "perPage": per_page
             },
-            "query": GQL_FILTERED_PRODUCTS
+            "query": read_gql_query('get_filtered_products')
         }).json()
 
         data = result.get('data').get('filteredProducts').get('products')
