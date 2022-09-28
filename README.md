@@ -10,7 +10,7 @@ cd cannabis-scrape
 
 
 ### Run Example
-> Checkout [./example.py](./example.py)
+> Check out [./example.py](./example.py)
 ```sh
 python example.py
 python3 example.py
